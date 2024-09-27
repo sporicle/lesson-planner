@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Planner</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Add this new div for the loading overlay -->
+        <div class="loading-overlay" v-if="isLoading">
+            <div class="spinner"></div>
+        </div>
+        
+        <div class="container">
+            <div class="left-side">
+                <h1>Lesson Plan Generator</h1>
+                <form @submit.prevent="generateLessonPlan">
+                    <p class="form-sentence">
+                        I want to create a lesson plan about
+                        <input v-model="topic" placeholder="numbers, colors, etc" required>
+                        that lasts for
+                        <input v-model="duration" type="number" placeholder="50" required>
+                        minutes where the kids are aged
+                        <input v-model="age" type="number" placeholder="9" required>
+                        years old and have a
+                        <select v-model="englishLevel" required>
+                            <option value="low">low</option>
+                            <option value="medium">medium</option>
+                            <option value="high">high</option>
+                        </select>
+                        English level.
+                    </p>
+                    <button type="submit">Generate</button>
+                </form>
+            </div>
+            <div class="right-side">
+                <div id="sortable-list" class="sortable-list">
+                    <div v-for="(item, index) in lessonPlan" :key="index" class="sortable-item" :class="item[0].toLowerCase()">
+                        <h3>{{ item[0] }}</h3>
+                        <p>{{ item[1] }}</p>
+                        <span class="time">{{ item[2] }} min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
