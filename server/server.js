@@ -30,6 +30,7 @@ app.post('/api/generate-lesson-plan', async (req, res) => {
       messages: [{ role: "user", content: prompt }],
     });
 
+    console.log('OpenAI Response:', completion.choices[0].message.content);
     const lessonPlan = JSON.parse(completion.choices[0].message.content);
     res.json(lessonPlan);
   } catch (error) {
