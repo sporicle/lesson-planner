@@ -298,5 +298,5 @@ select {
 .regenerate-button:hover,
 .regenerate-button:active {
     background-color: transparent;
-    transform: rotate(90deg);
+    transform: rotate(-90deg);
 }
