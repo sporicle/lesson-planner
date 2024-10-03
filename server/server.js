@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, '../client')));
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -39,7 +39,7 @@ app.post('/api/generate-lesson-plan', async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
 app.listen(port, () => {
