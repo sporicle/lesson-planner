@@ -14,7 +14,7 @@ body {
     width: 90%;
     margin: 50px;
     max-width: 1500px;
-    height: 80vh;
+    height: 100vh;
     background-color: #ffffff;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -23,13 +23,18 @@ body {
 
 .left-side {
     flex: 1;
-    padding: 2rem;
+    padding: 20px;
     background-color: #f8f9fa;
     border-right: 1px solid #e0e0e0;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     max-width: 400px;
+}
+
+.scrollable {
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 .form-sentence {
