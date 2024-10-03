@@ -1,0 +1,21 @@
+{
+    "name": "lesson-planning",
+    "version": "1.0.0",
+    "engines": {
+        "node": "14.x"
+    },
+    "scripts": {
+        "start": "cd server && npm start",
+        "heroku-postbuild": "cd client && npm install && npm run build && cd ../server && npm install"
+    },
+    "main": "app.js",
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.21.0"
+    }
+}

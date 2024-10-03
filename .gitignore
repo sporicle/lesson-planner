@@ -1,1 +1,4 @@
 js/config.js
+node_modules
+.env
+client/build
