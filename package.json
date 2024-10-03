@@ -2,7 +2,7 @@
     "name": "lesson-planning",
     "version": "1.0.0",
     "engines": {
-        "node": "14.x"
+        "node": "18.x"
     },
     "scripts": {
         "start": "cd server && npm start",
