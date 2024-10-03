@@ -6,7 +6,8 @@
     },
     "scripts": {
         "start": "cd server && npm start",
-        "heroku-postbuild": "cd client && npm install && npm run build && cd ../server && npm install"
+        "heroku-postbuild": "cd client && npm install && npm run build && cd ../server && npm install",
+        "build": "react-scripts build"
     },
     "main": "app.js",
     "keywords": [],
