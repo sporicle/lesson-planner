@@ -59,7 +59,10 @@
                     <div v-for="(item, index) in lessonPlan" :key="index" class="sortable-item" :class="item[0].toLowerCase()">
                         <h3>{{ item[0] }}</h3>
                         <p>{{ item[1] }}</p>
-                        <span class="time">{{ item[2] }} min</span>
+                        <div class="time-and-regenerate">
+                            <span class="time">{{ item[2] }} min</span>
+                            <button @click="regenerateBlock(index)" class="regenerate-button">🔄</button>
+                        </div>
                     </div>
                 </div>
             </div>

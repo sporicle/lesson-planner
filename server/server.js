@@ -60,6 +60,34 @@ app.post('/api/generate-topics', async (req, res) => {
   }
 });
 
+app.post('/api/regenerate-block', async (req, res) => {
+  try {
+    const { topic, currentBlock, lessonPlan, englishLevel, age } = req.body;
+
+    const prompt = `Given a lesson plan about ${topic} for ${age}-year-old students with ${englishLevel} English level, regenerate the following block:
+    Type: ${currentBlock[0]}
+    Description: ${currentBlock[1]}
+    Duration: ${currentBlock[2]} minutes
+
+    The new block should fit within the context of the overall lesson plan and maintain the same duration. Here's the current lesson plan for context:
+    ${JSON.stringify(lessonPlan)}
+
+    Provide the response as an array in the format [activity type,description,duration]. Do not include any additional text or formatting, it is a plain array.`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    console.log('OpenAI Response:', completion.choices[0].message.content);
+    const newBlock = JSON.parse(completion.choices[0].message.content);
+    res.json(newBlock);
+  } catch (error) {
+    console.error('Error regenerating block:', error);
+    res.status(500).json({ error: 'An error occurred while regenerating the block' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/index.html'));
 });

@@ -107,6 +107,36 @@ new Vue({
                 alert('Failed to generate topics. Please try again.');
             }
         },
+        async regenerateBlock(index) {
+            this.isLoading = true;
+            try {
+                const response = await fetch('/api/regenerate-block', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        topic: this.topic,
+                        currentBlock: this.lessonPlan[index],
+                        lessonPlan: this.lessonPlan,
+                        englishLevel: this.englishLevel,
+                        age: this.age
+                    })
+                });
+        
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+        
+                const newBlock = await response.json();
+                this.$set(this.lessonPlan, index, newBlock);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to regenerate block. Please try again.');
+            } finally {
+                this.isLoading = false;
+            }
+        },
         selectTopic(topic) {
             this.topic = topic;
         }
