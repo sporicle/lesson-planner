@@ -39,6 +39,27 @@ app.post('/api/generate-lesson-plan', async (req, res) => {
   }
 });
 
+app.post('/api/generate-topics', async (req, res) => {
+  try {
+    const { excludedTopics } = req.body;
+    const excludedTopicsString = excludedTopics.join(', ');
+
+    const prompt = `Give me 3 potential topics you can teach ESL kids about. Examples are numbers, colors, and animals. Don't suggest numbers, colors, animals${excludedTopicsString ? `, ${excludedTopicsString}` : ''}. The result should be a JSON array without any markings or characters before or after the JSON.`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    console.log('OpenAI Response:', completion.choices[0].message.content);
+    const topics = JSON.parse(completion.choices[0].message.content);
+    res.json(topics);
+  } catch (error) {
+    console.error('Error generating topics:', error);
+    res.status(500).json({ error: 'An error occurred while generating topics' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/index.html'));
 });

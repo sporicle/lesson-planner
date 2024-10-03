@@ -38,7 +38,9 @@ new Vue({
                 10
             ]
         ],
-        isLoading: false
+        isLoading: false,
+        suggestedTopics: [],
+        excludedTopics: []
     },
     mounted() {
         this.initSortable();
@@ -46,7 +48,7 @@ new Vue({
     methods: {
         async generateLessonPlan() {
             this.isLoading = true;
-            
+
             try {
                 const response = await fetch('/api/generate-lesson-plan', {
                     method: 'POST',
@@ -80,6 +82,33 @@ new Vue({
                 animation: 150,
                 ghostClass: 'sortable-ghost'
             });
+        },
+        async generateTopics() {
+            try {
+                const response = await fetch('/api/generate-topics', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        excludedTopics: this.excludedTopics
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const topics = await response.json();
+                this.suggestedTopics = topics;
+                this.excludedTopics = [...this.excludedTopics, ...topics];
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate topics. Please try again.');
+            }
+        },
+        selectTopic(topic) {
+            this.topic = topic;
         }
     }
 });

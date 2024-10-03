@@ -44,6 +44,14 @@
                         English level.
                     </p>
                     <button type="submit">Generate</button>
+                    <button type="button" @click="generateTopics" class="topic-generator">
+                        🎲 Stuck? Suggest Topics 🎲
+                    </button>
+                    <div class="topic-suggestions">
+                        <button v-for="topic in suggestedTopics" :key="topic" @click="selectTopic(topic)" class="topic-pill">
+                            {{ topic }}
+                        </button>
+                    </div>
                 </form>
             </div>
             <div class="right-side">

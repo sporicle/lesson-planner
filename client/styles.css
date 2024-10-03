@@ -219,3 +219,51 @@ select {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.topic-generator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1rem auto;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 2px solid #ccc;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: fit-content;
+    text-align: center;
+    text-transform: none;
+    gap: 0;
+}
+
+.topic-generator:hover {
+    background-color: #e0e0e0;
+}
+
+.topic-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.topic-pill {
+    background-color: #ff7d49;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: inline-block;
+    text-transform: none; /* Ensure text is not being transformed to uppercase */
+    width: 55%;
+}
+
+.topic-pill:hover {
+    background-color: #ff6a30;
+}
