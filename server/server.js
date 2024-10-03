@@ -8,8 +8,7 @@ const path = require('path');
 
 dotenv.config();
 
-// Update this to your GitHub Pages URL
-const allowedOrigins = ['https://yourusername.github.io'];
+const allowedOrigins = ['https://sporicle.github.io'];
 app.use(cors());
 app.use(express.json());
 
