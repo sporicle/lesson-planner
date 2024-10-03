@@ -44,7 +44,7 @@ app.post('/api/generate-topics', async (req, res) => {
     const { excludedTopics } = req.body;
     const excludedTopicsString = excludedTopics.join(', ');
 
-    const prompt = `Give me 3 potential topics you can teach ESL kids about. Examples are numbers, colors, and animals. Don't suggest numbers, colors, animals${excludedTopicsString ? `, ${excludedTopicsString}` : ''}. The result should be a JSON array without any markings or characters before or after the JSON.`;
+    const prompt = `Give me 3 potential topics you can teach ESL kids about. Examples are numbers, colors, and animals. Don't suggest numbers, colors, animals${excludedTopicsString ? `, ${excludedTopicsString}` : ''}. These are younger kids, so keep it more concrete and less abstract. The result should be a JSON array without any markings or characters before or after the JSON.`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
