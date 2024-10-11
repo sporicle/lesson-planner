@@ -435,16 +435,23 @@ select {
 }
 
 .lesson-popup-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
     max-width: 80%;
     max-height: 80%;
     overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.lesson-popup-content h2 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.5rem;
 }
 
 .lesson-popup-content button {
-    margin-top: 20px;
+    margin-top: 1rem;
 }
 
 .lesson-plan {
@@ -491,3 +498,29 @@ select {
 .level-high {
     background-color: #F44336; /* Red */
 }
+
+.lesson-block {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.lesson-block h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.lesson-block p {
+    color: #666;
+}
+
+.lesson-block .time {
+    font-weight: bold;
+    color: #444;
+}
+
+.energizer { background-color: #FFD700; }
+.activity { background-color: #98FB98; }
+.game { background-color: #87CEFA; }
+.learn { background-color: #FFA07A; }
