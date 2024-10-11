@@ -20,12 +20,16 @@
 </head>
 <body>
     <div id="app">
-        <!-- Add this new div for the loading overlay -->
         <div class="loading-overlay" v-if="isLoading">
             <div class="spinner"></div>
         </div>
         
-        <div class="container">
+        <div class="tabs">
+            <button @click="activeTab = 'generate'" :class="{ active: activeTab === 'generate' }">Generate Lesson</button>
+            <button @click="activeTab = 'recent'" :class="{ active: activeTab === 'recent' }">Recent Lessons</button>
+        </div>
+        
+        <div v-if="activeTab === 'generate'" class="container">
             <div class="left-side scrollable">
                 <h1>Lesson Plan Generator</h1>
                 <form @submit.prevent="generateLessonPlan">
@@ -66,6 +70,22 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <div v-if="activeTab === 'recent'" class="recent-lessons">
+            <div v-for="lesson in recentLessons" :key="lesson.id" class="lesson-card" @click="openLessonPopup(lesson)">
+                <h3>{{ lesson.lesson_prompt }}</h3>
+                <p>Likes: {{ lesson.like_count }}</p>
+                <p>Generated: {{ formatDate(lesson.time_generated) }}</p>
+            </div>
+        </div>
+        
+        <div v-if="selectedLesson" class="lesson-popup">
+            <div class="lesson-popup-content">
+                <h2>{{ selectedLesson.lesson_prompt }}</h2>
+                <div v-html="formatLessonContent(selectedLesson.lesson_content)"></div>
+                <button @click="selectedLesson = null">Close</button>
             </div>
         </div>
     </div>

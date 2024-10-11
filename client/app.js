@@ -40,10 +40,14 @@ new Vue({
         ],
         isLoading: false,
         suggestedTopics: [],
-        excludedTopics: []
+        excludedTopics: [],
+        activeTab: 'generate',
+        recentLessons: [],
+        selectedLesson: null
     },
     mounted() {
         this.initSortable();
+        this.loadRecentLessons();
     },
     methods: {
         async generateLessonPlan() {
@@ -67,7 +71,8 @@ new Vue({
                     throw new Error('API request failed');
                 }
 
-                this.lessonPlan = await response.json();
+                const data = await response.json();
+                this.lessonPlan = data.lessonPlan;
                 console.log(this.lessonPlan);
             } catch (error) {
                 console.error('Error:', error);
@@ -75,6 +80,33 @@ new Vue({
             } finally {
                 this.isLoading = false;
             }
+        },
+        async loadRecentLessons() {
+            try {
+                const response = await fetch('/api/recent-lessons');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch recent lessons');
+                }
+                this.recentLessons = await response.json();
+            } catch (error) {
+                console.error('Error loading recent lessons:', error);
+            }
+        },
+        openLessonPopup(lesson) {
+            this.selectedLesson = lesson;
+        },
+        formatDate(timestamp) {
+            return new Date(timestamp).toLocaleString();
+        },
+        formatLessonContent(content) {
+            const lessonPlan = JSON.parse(content);
+            return lessonPlan.map(item => `
+                <div class="lesson-block ${item[0].toLowerCase()}">
+                    <h3>${item[0]}</h3>
+                    <p>${item[1]}</p>
+                    <span class="time">${item[2]} min</span>
+                </div>
+            `).join('');
         },
         initSortable() {
             const el = document.getElementById('sortable-list');

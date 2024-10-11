@@ -1,11 +1,23 @@
 const express = require('express');
+console.log('Express imported');
 const app = express();
 const port = process.env.PORT || 3000;
 const cors = require('cors');
 const dotenv = require('dotenv');
 const OpenAI = require('openai');
 const path = require('path');
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json');
 
+console.log('All modules imported');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://lesson-plan-4396b-default-rtdb.asia-southeast1.firebasedatabase.app/"
+});
+console.log('Firebase initialized');
+
+const db = admin.database();
 dotenv.config();
 
 const allowedOrigins = ['https://sporicle.github.io'];
@@ -32,7 +44,20 @@ app.post('/api/generate-lesson-plan', async (req, res) => {
 
     console.log('OpenAI Response:', completion.choices[0].message.content);
     const lessonPlan = JSON.parse(completion.choices[0].message.content);
-    res.json(lessonPlan);
+
+    // Save the lesson plan to Firebase
+    const newLessonRef = db.ref('lessons').push();
+    await newLessonRef.set({
+      lesson_prompt: `${topic} for ${age} year olds (${englishLevel} level)`,
+      lesson_content: JSON.stringify(lessonPlan),
+      like_count: 0,
+      time_generated: admin.database.ServerValue.TIMESTAMP
+    });
+
+    res.json({
+      lessonPlan,
+      lessonId: newLessonRef.key
+    });
   } catch (error) {
     console.error('Error generating lesson plan:', error);
     res.status(500).json({ error: 'An error occurred while generating the lesson plan' });
@@ -88,10 +113,35 @@ app.post('/api/regenerate-block', async (req, res) => {
   }
 });
 
+// New endpoint to fetch recent lessons
+app.get('/api/recent-lessons', async (req, res) => {
+  try {
+    const lessonsRef = db.ref('lessons');
+    const snapshot = await lessonsRef
+      .orderByChild('time_generated')
+      .limitToLast(10)
+      .once('value');
+    
+    const lessons = [];
+    snapshot.forEach((childSnapshot) => {
+      lessons.unshift({
+        id: childSnapshot.key,
+        ...childSnapshot.val()
+      });
+    });
+    res.json(lessons);
+  } catch (error) {
+    console.error('Error fetching recent lessons:', error);
+    res.status(500).json({ error: 'An error occurred while fetching recent lessons' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+console.log('Server setup complete');
