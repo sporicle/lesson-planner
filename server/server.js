@@ -1,5 +1,4 @@
 const express = require('express');
-console.log('Express imported');
 const app = express();
 const port = process.env.PORT || 3000;
 const cors = require('cors');
@@ -7,18 +6,18 @@ const dotenv = require('dotenv');
 const OpenAI = require('openai');
 const path = require('path');
 const admin = require('firebase-admin');
-const serviceAccount = require('./serviceAccountKey.json');
+dotenv.config();
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 console.log('All modules imported');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://lesson-plan-4396b-default-rtdb.asia-southeast1.firebasedatabase.app/"
+  databaseURL: process.env.FIREBASE_DATABASE_URL
 });
 console.log('Firebase initialized');
 
 const db = admin.database();
-dotenv.config();
 
 const allowedOrigins = ['https://sporicle.github.io'];
 app.use(cors());
