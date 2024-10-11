@@ -171,6 +171,23 @@ new Vue({
         },
         selectTopic(topic) {
             this.topic = topic;
+        },
+        getAgeClass(age) {
+            if (age < 9) return 'age-young';
+            if (age >= 9 && age < 14) return 'age-middle';
+            return 'age-older';
+        },
+        getLevelClass(level) {
+            switch (level.toLowerCase()) {
+                case 'low':
+                    return 'level-low';
+                case 'medium':
+                    return 'level-medium';
+                case 'high':
+                    return 'level-high';
+                default:
+                    return '';
+            }
         }
     }
 });

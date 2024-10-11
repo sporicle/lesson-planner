@@ -75,9 +75,15 @@
         
         <div v-if="activeTab === 'recent'" class="recent-lessons">
             <div v-for="lesson in recentLessons" :key="lesson.id" class="lesson-card" @click="openLessonPopup(lesson)">
-                <h3>{{ lesson.lesson_prompt }}</h3>
-                <p>Likes: {{ lesson.like_count }}</p>
-                <p>Generated: {{ formatDate(lesson.time_generated) }}</p>
+                <div class="lesson-header">
+                    <h3 class="lesson-title">{{ lesson.topic }}</h3>
+                    <span class="lesson-duration">{{ lesson.duration }} min</span>
+                </div>
+                <div class="lesson-meta">
+                    <span class="lesson-age" :class="getAgeClass(lesson.age)">Age: {{ lesson.age }}</span>
+                    <span class="lesson-level" :class="getLevelClass(lesson.englishLevel)">Level: {{ lesson.englishLevel }}</span>
+                </div>
+                <p class="lesson-timestamp">{{ formatDate(lesson.time_generated) }}</p>
             </div>
         </div>
         

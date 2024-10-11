@@ -48,7 +48,11 @@ app.post('/api/generate-lesson-plan', async (req, res) => {
     // Save the lesson plan to Firebase
     const newLessonRef = db.ref('lessons').push();
     await newLessonRef.set({
-      lesson_prompt: `${topic} for ${age} year olds (${englishLevel} level)`,
+      topic: topic,
+      age: age,
+      englishLevel: englishLevel,
+      duration: duration, // Add this line
+      lesson_prompt: `${topic} for ${age} year olds (${englishLevel} level) - ${duration} minutes`,
       lesson_content: JSON.stringify(lessonPlan),
       like_count: 0,
       time_generated: admin.database.ServerValue.TIMESTAMP
@@ -113,7 +117,7 @@ app.post('/api/regenerate-block', async (req, res) => {
   }
 });
 
-// New endpoint to fetch recent lessons
+// Update the recent lessons endpoint
 app.get('/api/recent-lessons', async (req, res) => {
   try {
     const lessonsRef = db.ref('lessons');
@@ -124,9 +128,17 @@ app.get('/api/recent-lessons', async (req, res) => {
     
     const lessons = [];
     snapshot.forEach((childSnapshot) => {
+      const lessonData = childSnapshot.val();
       lessons.unshift({
         id: childSnapshot.key,
-        ...childSnapshot.val()
+        topic: lessonData.topic,
+        age: lessonData.age,
+        englishLevel: lessonData.englishLevel,
+        duration: lessonData.duration, // Add this line
+        lesson_prompt: lessonData.lesson_prompt,
+        lesson_content: lessonData.lesson_content,
+        like_count: lessonData.like_count,
+        time_generated: lessonData.time_generated
       });
     });
     res.json(lessons);
@@ -139,7 +151,6 @@ app.get('/api/recent-lessons', async (req, res) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/index.html'));
 });
-
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
