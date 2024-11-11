@@ -147,6 +147,42 @@ app.get('/api/recent-lessons', async (req, res) => {
   }
 });
 
+// Method for ChaiMai app.
+app.post('/api/generate-deck', async (req, res) => {
+  try {
+    const { topic, numCards } = req.body;
+
+    const prompt = `Give me a list of  ${numCards || 50}  people, places or things that are related to ${topic}.
+    They are going to be used for a charades guessing game similar to heads up,
+    so try to have a mix of common and creative words. Don't have any repeats or very similar words. 
+    Format the response as a JSON object with the following structure:
+    {
+      "deckname": "Sea Animals",
+      "deck_id": "sea_animals",
+      "cards": [
+        {
+          "cardname": "term in English",
+          "th": "translation in Thai"
+        }
+      ]
+    }
+    Return only the JSON without any additional text or formatting.`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    console.log('OpenAI Response:', completion.choices[0].message.content);
+    const flashcards = JSON.parse(completion.choices[0].message.content);
+
+    res.json(flashcards);
+  } catch (error) {
+    console.error('Error generating flashcards:', error);
+    res.status(500).json({ error: 'An error occurred while generating flashcards' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/index.html'));
 });
