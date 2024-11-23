@@ -28,6 +28,78 @@ app.use(express.json());
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../client')));
 
+const INTERESTS_DATABASE = {
+  evergreen: {
+    neutral: [
+      { interest: "Outdoors"},
+      { interest: "Photography"},
+      { interest: "Biking"},
+      { interest: "Dogs"},
+      { interest: "Music"},
+      { interest: "Sports"},
+      { interest: "Art"},
+      { interest: "Board Games"},
+    ],
+    male: [
+      { interest: "Video Games"},
+    ],
+    female: [
+      { interest: "Makeup"},
+      { interest: "Dance"},
+      { interest: "Astronomy"}
+    ]
+  },
+  child: { 
+    neutral: [
+      { interest: "LEGOs"},
+      { interest: "Pokemon Trading Cards"},
+      { interest: "Science"},
+      { interest: "Puzzles"},
+      { interest: "Minecraft"},
+      { interest: "Comics"},
+    ],
+    male: [
+      { interest: "Toy Cars"},
+      { interest: "Dinosaurs"},
+      { interest: "Robots"},
+      { interest: "Superheroes"},
+      { interest: "Trucks"},
+    ],
+    female: [
+      { interest: "Arts & Crafts"},
+      { interest: "Dance"},
+      { interest: "Princesses" },
+      { interest: "Dolls"},
+    ]
+  },
+  adult: { // Ages 20+
+    neutral: [
+      { interest: "Meditation"},
+      { interest: "Hiking" },
+      { interest: "Wine" },
+      { interest: "Cooking"},
+      { interest: "Plants"},
+      { interest: "Travel"},
+      { interest: "Home Decor"},
+      { interest: "Personal Finance"},
+      { interest: "Journaling"},
+    ],
+    male: [
+      { interest: "Home Brewing"},
+      { interest: "Golf"},
+      { interest: "Woodworking"},
+      { interest: "Fishing"},
+      { interest: "Rock Climbing" },
+    ],
+    female: [
+      { interest: "Jewelry Making"},
+      { interest: "Yoga" },
+      { interest: "Romance Novels" },
+      { interest: "Baking" },
+    ]
+  }
+};
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -311,6 +383,30 @@ app.post('/api/related_gifts', async (req, res) => {
   } catch (error) {
     console.error('Error generating related gift suggestions:', error);
     res.status(500).json({ error: 'An error occurred while generating related gift suggestions' });
+  }
+});
+
+app.post('/api/tailored_interests', (req, res) => {
+  try {
+    const { gender, age } = req.body;
+    
+    let ageGroup;
+    if (age <= 15) ageGroup = 'child';
+    else ageGroup = 'adult';
+
+
+    const ageGroupInterests = [...INTERESTS_DATABASE[ageGroup].neutral, ...INTERESTS_DATABASE[ageGroup][gender.toLowerCase()]];
+    const combinedEvergreenInterests = [...INTERESTS_DATABASE.evergreen[gender.toLowerCase()] , ...INTERESTS_DATABASE.evergreen.neutral ];
+
+    const shuffledEvergreen = combinedEvergreenInterests.sort(() => 0.5 - Math.random());
+    const shuffledAgeGroup = ageGroupInterests.sort(() => 0.5 - Math.random());
+    
+    const selectedInterests = [...shuffledEvergreen.slice(0, 5), ...shuffledAgeGroup.slice(0, 5)]; 
+    
+    res.json(selectedInterests);
+  } catch (error) {
+    console.error('Error getting tailored interests:', error);
+    res.status(500).json({ error: 'An error occurred while getting tailored interests' });
   }
 });
 
