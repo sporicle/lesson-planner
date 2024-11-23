@@ -7,6 +7,7 @@ const OpenAI = require('openai');
 const path = require('path');
 const admin = require('firebase-admin');
 const axios = require('axios');
+const cheerio = require('cheerio');
 dotenv.config();
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
@@ -30,6 +31,29 @@ app.use(express.static(path.join(__dirname, '../client')));
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+async function getFirstGoogleResult(searchQuery) {
+  try {
+    const response = await axios.get(
+      `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`,
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
+        }
+      }
+    );
+
+    const $ = cheerio.load(response.data);
+    // Look for the first organic search result link
+    const firstResult = $('a[jsname="UWckNb"]').first().attr('href');
+    console.log('First result:', firstResult);
+    return firstResult || `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+    
+  } catch (error) {
+    console.error('Error scraping Google search result:', error);
+    return `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+  }
+}
 
 app.post('/api/generate-lesson-plan', async (req, res) => {
   try {
@@ -208,7 +232,8 @@ app.post('/api/gift_suggestion', async (req, res) => {
     
     // Add links to each suggestion
     for (const suggestion of suggestions) {
-      suggestion.product_link = `https://www.google.com/search?q=${encodeURIComponent(suggestion.name)}`;
+      suggestion.product_link = await getFirstGoogleResult(suggestion.name);
+      // suggestion.product_link = `https://www.google.com/search?q=${encodeURIComponent(suggestion.name)}`;
       
       try {
         const searchQuery = `${suggestion.name} product`;
@@ -265,7 +290,9 @@ app.post('/api/related_gifts', async (req, res) => {
     
     // Add links to each suggestion
     for (const suggestion of suggestions) {
-      suggestion.product_link = `https://www.google.com/search?q=${encodeURIComponent(suggestion.name)}`;
+      // suggestion.product_link = `https://www.google.com/search?q=${encodeURIComponent(suggestion.name)}`;
+      suggestion.product_link = await getFirstGoogleResult(suggestion.name);
+      console.log('Product link:', suggestion.product_link);
       
       try {
         const searchQuery = `${suggestion.name} product`;
