@@ -390,9 +390,10 @@ app.post('/api/tailored_interests', (req, res) => {
   try {
     let { gender, age } = req.body;
     if (!gender) gender = 'male';
+    if (!age) age = 21;
 
     let ageGroup;
-    if (age || 21 <= 15) ageGroup = 'child';
+    if (age <= 15) ageGroup = 'child';
     else ageGroup = 'adult';
 
 
