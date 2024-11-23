@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const OpenAI = require('openai');
 const path = require('path');
 const admin = require('firebase-admin');
+const axios = require('axios');
 dotenv.config();
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
@@ -180,6 +181,63 @@ app.post('/api/generate-deck', async (req, res) => {
   } catch (error) {
     console.error('Error generating flashcards:', error);
     res.status(500).json({ error: 'An error occurred while generating flashcards' });
+  }
+});
+
+app.post('/api/gift_suggestion', async (req, res) => {
+  try {
+    const { interests, price, gender, age, relationship, occasion } = req.body;
+
+    const prompt = `Can you recommend me 8 specific brand name products as gifts for a ${age} year old ${gender} who is my ${relationship} and likes ${interests}, with a budget of ${price}. 
+    The occasion is ${occasion}. Format the response as a JSON array of objects, where each object has 'name', 'price', 'justification', and 'description' fields.
+    Return only valid JSON without any additional text or formatting.`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    // Clean up the response by removing markdown code blocks
+    let cleanResponse = completion.choices[0].message.content
+      .replace(/```json\n?/g, '')  // Remove ```json
+      .replace(/```\n?/g, '')      // Remove closing ```
+      .trim();                     // Remove any extra whitespace
+
+    console.log('Cleaned Response:', cleanResponse);
+    const suggestions = JSON.parse(cleanResponse);
+    
+    // Add links to each suggestion
+    for (const suggestion of suggestions) {
+      suggestion.product_link = `https://www.google.com/search?q=${encodeURIComponent(suggestion.name)}`;
+      
+      try {
+        const searchQuery = `${suggestion.name} product`;
+        const response = await axios.get(
+          `https://www.bing.com/images/search?q=${encodeURIComponent(searchQuery)}&first=1`,
+          {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+              'Accept': 'text/html',
+              'Accept-Language': 'en-US,en;q=0.9'
+            }
+          }
+        );
+
+        // Extract image URL using regex
+        const imgMatch = response.data.match(/murl&quot;:&quot;(.*?)&quot;/);
+        suggestion.image_link = imgMatch ? imgMatch[1] : '';
+        
+        console.log(`Image link for ${suggestion.name}:`, suggestion.image_link);
+      } catch (imageError) {
+        console.error('Error fetching image for product:', imageError);
+        suggestion.image_link = '';
+      }
+    }
+
+    res.json(suggestions);
+  } catch (error) {
+    console.error('Error generating gift suggestions:', error);
+    res.status(500).json({ error: 'An error occurred while generating gift suggestions' });
   }
 });
 
