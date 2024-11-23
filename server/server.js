@@ -230,34 +230,18 @@ app.post('/api/gift_suggestion', async (req, res) => {
     console.log('Cleaned Response:', cleanResponse);
     const suggestions = JSON.parse(cleanResponse);
     
-    // Add links to each suggestion
-    for (const suggestion of suggestions) {
-      suggestion.product_link = await getFirstGoogleResult(suggestion.name);
-      // suggestion.product_link = `https://www.google.com/search?q=${encodeURIComponent(suggestion.name)}`;
-      
-      try {
-        const searchQuery = `${suggestion.name} product`;
-        const response = await axios.get(
-          `https://www.bing.com/images/search?q=${encodeURIComponent(searchQuery)}&first=1`,
-          {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-              'Accept': 'text/html',
-              'Accept-Language': 'en-US,en;q=0.9'
-            }
-          }
-        );
-
-        // Extract image URL using regex
-        const imgMatch = response.data.match(/murl&quot;:&quot;(.*?)&quot;/);
-        suggestion.image_link = imgMatch ? imgMatch[1] : '';
+    // Fetch all links and images in parallel
+    await Promise.all(
+      suggestions.map(async (suggestion) => {
+        const [productLink, imageLink] = await Promise.all([
+          getFirstGoogleResult(suggestion.name),
+          getImageLink(suggestion.name)
+        ]);
         
-        console.log(`Image link for ${suggestion.name}:`, suggestion.image_link);
-      } catch (imageError) {
-        console.error('Error fetching image for product:', imageError);
-        suggestion.image_link = '';
-      }
-    }
+        suggestion.product_link = productLink;
+        suggestion.image_link = imageLink;
+      })
+    );
 
     res.json(suggestions);
   } catch (error) {
@@ -265,6 +249,28 @@ app.post('/api/gift_suggestion', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while generating gift suggestions' });
   }
 });
+
+// Add this new helper function
+async function getImageLink(searchQuery) {
+  try {
+    const response = await axios.get(
+      `https://www.bing.com/images/search?q=${encodeURIComponent(searchQuery + ' product')}&first=1`,
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'text/html',
+          'Accept-Language': 'en-US,en;q=0.9'
+        }
+      }
+    );
+
+    const imgMatch = response.data.match(/murl&quot;:&quot;(.*?)&quot;/);
+    return imgMatch ? imgMatch[1] : '';
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    return '';
+  }
+}
 
 app.post('/api/related_gifts', async (req, res) => {
   try {
@@ -288,34 +294,18 @@ app.post('/api/related_gifts', async (req, res) => {
     console.log('Cleaned Response:', cleanResponse);
     const suggestions = JSON.parse(cleanResponse);
     
-    // Add links to each suggestion
-    for (const suggestion of suggestions) {
-      // suggestion.product_link = `https://www.google.com/search?q=${encodeURIComponent(suggestion.name)}`;
-      suggestion.product_link = await getFirstGoogleResult(suggestion.name);
-      console.log('Product link:', suggestion.product_link);
-      
-      try {
-        const searchQuery = `${suggestion.name} product`;
-        const response = await axios.get(
-          `https://www.bing.com/images/search?q=${encodeURIComponent(searchQuery)}&first=1`,
-          {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-              'Accept': 'text/html',
-              'Accept-Language': 'en-US,en;q=0.9'
-            }
-          }
-        );
-
-        const imgMatch = response.data.match(/murl&quot;:&quot;(.*?)&quot;/);
-        suggestion.image_link = imgMatch ? imgMatch[1] : '';
+    // Fetch all links and images in parallel
+    await Promise.all(
+      suggestions.map(async (suggestion) => {
+        const [productLink, imageLink] = await Promise.all([
+          getFirstGoogleResult(suggestion.name),
+          getImageLink(suggestion.name)
+        ]);
         
-        console.log(`Image link for ${suggestion.name}:`, suggestion.image_link);
-      } catch (imageError) {
-        console.error('Error fetching image for product:', imageError);
-        suggestion.image_link = '';
-      }
-    }
+        suggestion.product_link = productLink;
+        suggestion.image_link = imageLink;
+      })
+    );
 
     res.json(suggestions);
   } catch (error) {
