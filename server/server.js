@@ -389,7 +389,8 @@ app.post('/api/related_gifts', async (req, res) => {
 app.post('/api/tailored_interests', (req, res) => {
   try {
     const { gender, age } = req.body;
-    
+    gender = gender || 'male';
+    age = age || 21;
     let ageGroup;
     if (age <= 15) ageGroup = 'child';
     else ageGroup = 'adult';
