@@ -107,7 +107,7 @@ const openai = new OpenAI({
 async function getFirstGoogleResult(searchQuery) {
   try {
     const response = await axios.get(
-      `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`,
+      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}`,
       {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
@@ -117,13 +117,13 @@ async function getFirstGoogleResult(searchQuery) {
 
     const $ = cheerio.load(response.data);
     // Look for the first organic search result link
-    const firstResult = $('a[jsname="UWckNb"]').first().attr('href');
+    const firstResult = $('.result__url').first().attr('href');
     console.log('First result:', firstResult);
-    return firstResult || `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+    return firstResult || `https://duckduckgo.com/?q=${encodeURIComponent(searchQuery)}`;
     
   } catch (error) {
-    console.error('Error scraping Google search result:', error);
-    return `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+    console.error('Error scraping DuckDuckGo search result:', error);
+    return `https://duckduckgo.com/?q=${encodeURIComponent(searchQuery)}`;
   }
 }
 
