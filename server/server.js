@@ -106,8 +106,7 @@ const openai = new OpenAI({
 
 async function getFirstGoogleResult(searchQuery) {
   try {
-    // Try DuckDuckGo first
-    const ddgResponse = await axios.get(
+    const response = await axios.get(
       `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}`,
       {
         headers: {
@@ -116,40 +115,18 @@ async function getFirstGoogleResult(searchQuery) {
       }
     );
 
-    const $ = cheerio.load(ddgResponse.data);
-    const firstResult = $('.result__url').first().attr('href');
-    
-    // If DuckDuckGo returns a valid URL, use it
-    if (firstResult && !firstResult.includes('duckduckgo.com')) {
-      console.log('DuckDuckGo result:', firstResult);
-      return firstResult;
-    }
+    const $ = cheerio.load(response.data);
+    // Look for the first non-sponsored result in DuckDuckGo's HTML
+    const firstResult = $('.result:not(.result-sponsored) .result__a')
+      .first()
+      .attr('href');
 
-    // Fall back to Google if DuckDuckGo doesn't return a valid URL
-    const googleResponse = await axios.get(
-      `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
-        }
-      }
-    );
-
-    const $google = cheerio.load(googleResponse.data);
-    const googleResult = $google('a[href^="/url?q="]').first().attr('href');
-    
-    if (googleResult) {
-      const cleanUrl = googleResult.replace('/url?q=', '').split('&')[0];
-      console.log('Google result:', cleanUrl);
-      return cleanUrl;
-    }
-
-    // If both fail, return DuckDuckGo search URL as fallback
-    return `https://duckduckgo.com/?q=${encodeURIComponent(searchQuery)}`;
+    // If no result found, fallback to a direct Google search URL
+    return firstResult || `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
     
   } catch (error) {
-    console.error('Error scraping search results:', error);
-    return `https://duckduckgo.com/?q=${encodeURIComponent(searchQuery)}`;
+    console.error('Error scraping DuckDuckGo search result:', error);
+    return `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
   }
 }
 
