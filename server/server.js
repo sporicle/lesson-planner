@@ -252,7 +252,7 @@ app.post('/api/generate-deck', async (req, res) => {
   try {
     const { topic, numCards } = req.body;
 
-    const prompt = `Give me a list of  ${numCards || 50}  people, places or things that are related to ${topic}.
+    const prompt = `Give me a list of  ${numCards || 30}  people, places or things that are related to ${topic}.
     They are going to be used for a charades guessing game similar to heads up,
     so try to have a mix of common and creative words. Don't have any repeats or very similar words. 
     Format the response as a JSON object with the following structure:
